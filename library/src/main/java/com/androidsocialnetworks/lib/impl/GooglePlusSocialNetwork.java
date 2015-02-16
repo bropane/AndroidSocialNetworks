@@ -40,6 +40,7 @@ public class GooglePlusSocialNetwork extends SocialNetwork
      * so let's handle state by ourselves
      */
     private static final String SAVE_STATE_KEY_IS_CONNECTED = "GooglePlusSocialNetwork.SAVE_STATE_KEY_OAUTH_TOKEN";
+    private static final String SAVE_SELECTED_ACCOUNT = "GooglePlusSocialNetwork.SAVE_SELECTED_ACCOUNT";
     private GoogleApiClient mGoogleApiClient;
     private ConnectionResult mConnectionResult;
     private boolean mConnectRequested;
@@ -214,11 +215,16 @@ public class GooglePlusSocialNetwork extends SocialNetwork
 			}
 		}
     }
+    
+    public String getSelectedAccount(){
+    	return mSharedPreferences.getString(SAVE_SELECTED_ACCOUNT, null);
+    }
 
     @Override
     public void onConnected(Bundle bundle) {
         if (mConnectRequested) {
             if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
+            	mSharedPreferences.edit().putString(SAVE_SELECTED_ACCOUNT, Plus.Account.getAccountName(mGoogleApiClient)).commit();
                 if (mLocalListeners.get(REQUEST_LOGIN) != null) {
                     mSharedPreferences.edit().putBoolean(SAVE_STATE_KEY_IS_CONNECTED, true).commit();
                     ((OnLoginCompleteListener) mLocalListeners.get(REQUEST_LOGIN)).onLoginSuccess(getID());
